@@ -60,15 +60,18 @@ void loop()
 
     // read data
     whichGreen = Serial.parseInt();
-    received_delay_green = Serial.parseInt();
 
+    while (Serial.available()==0){}
+    received_delay_green = Serial.parseInt();
+/*
     // check if data is valid
     while (received_delay_green <= 0) {
         while (Serial.available()==0){}
         whichGreen = Serial.parseInt();
+        while (Serial.available()==0){}
         received_delay_green = (int) Serial.parseInt();
     }
-
+*/
     // execute green light command
     loop_interval(received_delay_green, whichGreen);
 
