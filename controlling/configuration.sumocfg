@@ -2,12 +2,8 @@
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
     <input>
-        <!-- <net-file value='maps/network4.net.xml'/> -->
-        <!-- <route-files value='maps/routes4.rou.xml'/> -->
-        <!-- <net-file value='maps/citysample.net.xml'/> -->
-        <!-- <route-files value='maps/citysample.rou.xml'/> -->
         <net-file value='maps/city0.net.xml'/>
-        <route-files value='maps/routes0.rou.xml'/>
+        <route-files value='maps/city0.rou.xml'/>
     </input>
     <time>
         <begin value='0'/>
@@ -19,4 +15,3 @@
         <no-step-log value="true"/>
     </report>
 </configuration>
-

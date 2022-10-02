@@ -6,7 +6,7 @@ import sys
 import time
 import optparse
 import random
-# import serial
+import serial
 import numpy as np
 import torch
 import torch.optim as optim
@@ -23,6 +23,12 @@ else:
 
 from sumolib import checkBinary  # noqa
 import traci  # noqa
+
+def flip_bit(a):
+    if a == 0:
+        return 1
+    else:
+        return 0
 
 def right_or_left(a, b):
     """
@@ -112,6 +118,7 @@ class Agent:
         batch_size,
         n_actions,
         junctions,
+        Q_eval = 0,
         max_memory_size=100000,
         epsilon_dec=5e-4,
         epsilon_end=0.05,
@@ -132,9 +139,11 @@ class Agent:
         self.mem_cntr = 0
         self.iter_cntr = 0
         self.replace_target = 100
-
-        self.Q_eval = Model(
-            self.lr, self.input_dims, self.fc1_dims, self.fc2_dims, self.n_actions
+        if Q_eval != 0:
+            self.Q_eval = Q_eval
+        else:
+            self.Q_eval = Model(
+                self.lr, self.input_dims, self.fc1_dims, self.fc2_dims, self.n_actions
         )
         self.memory = dict()
         for junction in junctions:
@@ -176,7 +185,7 @@ class Agent:
             self.memory[junction_number]['mem_cntr'] = 0
 
     def save(self,model_name):
-        torch.save(self.Q_eval.state_dict(),f'models/{model_name}.bin')
+        torch.save(self.Q_eval.state_dict(), f'models/{model_name}.bin')
 
     def learn(self, junction):
         self.Q_eval.optimizer.zero_grad()
@@ -230,6 +239,7 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
     all_junctions = traci.trafficlight.getIDList()
     junction_numbers = list(range(len(all_junctions)))
 
+    #  n_actions is the chosed time 
     brain = Agent(
         gamma=0.99,
         epsilon=0.0,
@@ -239,14 +249,13 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
         fc1_dims=256,
         fc2_dims=256,
         batch_size=1024,
-        n_actions=4,
+        n_actions=10,
         junctions=junction_numbers,
     )
 
     if not train:
         brain.Q_eval.load_state_dict(torch.load(f'models/{model_name}.bin',map_location=brain.Q_eval.device))
 
-    print(brain.Q_eval.device)
     traci.close()
     olds = dict()
     for e in range(epochs):
@@ -261,18 +270,9 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
 
         print(f"epoch: {e}")
         select_lane = [
-            ["yyyrrrrrrrrr", "GGGrrrrrrrrr"],
-            ["rrryyyrrrrrr", "rrrGGGrrrrrr"],
-            ["rrrrrryyyrrr", "rrrrrrGGGrrr"],
-            ["rrrrrrrrryyy", "rrrrrrrrrGGG"],
+            ["yyyrrryyyrrr", "GGGrrrGGGrrr"],
+            ["rrryyyrrryyy", "rrrGGGrrrGGG"]
         ]
-
-        # select_lane = [
-        #     ["yyyyrrrrrrrrrrrr", "GGGGrrrrrrrrrrrr"],
-        #     ["rrrryyyyrrrrrrrr", "rrrrGGGGrrrrrrrr"],
-        #     ["rrrrrrrryyyyrrrr", "rrrrrrrrGGGGrrrr"],
-        #     ["rrrrrrrrrrrryyyy", "rrrrrrrrrrrrGGGG"],
-        # ]
 
         step = 0
         total_time = 0
@@ -284,6 +284,11 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
         prev_action = dict()
         all_lanes = list()
         olds = dict()
+
+        cur_direction = 0
+        # This only applied for one lane only
+        # We have to set which lane is next to be choosed
+        # Since this is the single junction with 4 lanes: 2 lanes are in the same axis and opposite direction and two other lanes are on the right and left
         for junction_number, junction in enumerate(all_junctions):
             prev_wait_time[junction] = 0
             prev_action[junction_number] = 0
@@ -299,7 +304,6 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
 
         while step <= steps:
             traci.simulationStep()
-            # print(all_junctions)
             for junction_number, junction in enumerate(all_junctions):
                 controled_lanes = traci.trafficlight.getControlledLanes(junction)
                 waiting_time = get_waiting_time(controled_lanes)
@@ -308,28 +312,28 @@ def run(train=True,model_name="model",epochs=50,steps=500,ard=False):
                 if traffic_lights_time[junction] == 0:
                     vehicles_per_lane = get_vehicle_numbers(controled_lanes, olds)
                     # vehicles_per_lane is a dict with key is lane and value as a 3-sized list
-                    # vehicles_per_lane = get_vehicle_numbers(all_lanes)
 
                     #storing previous state and current state
                     reward = -1 *  waiting_time
                     state_ = [flow for l in vehicles_per_lane.values() for flow in l]
                     state = prev_vehicles_per_lane[junction_number]
                     prev_vehicles_per_lane[junction_number] = state_
-                    brain.store_transition(state, state_, prev_action[junction_number],reward,(step==steps),junction_number)
+                    brain.store_transition(state, state_, prev_action[junction_number],reward,(step==steps), junction_number)
 
                     #selecting new action based on current state
-                    lane = brain.choose_action(state_)
-                    prev_action[junction_number] = lane
-                    phaseDuration(junction, 6, select_lane[lane][0])
-                    phaseDuration(junction, min_duration + 10, select_lane[lane][1])
+                    phase_time = brain.choose_action(state_)
+                    prev_action[junction_number] = phase_time
+                    phaseDuration(junction, 1, select_lane[cur_direction][0])
+                    phaseDuration(junction, min_duration + phase_time, select_lane[cur_direction][1])
 
                     if ard:
                         ph = str(traci.trafficlight.getPhase("0"))
                         value = write_read(ph)
 
-                    traffic_lights_time[junction] = min_duration + 10
+                    traffic_lights_time[junction] = min_duration + phase_time
                     if train:
                         brain.learn(junction_number)
+                    cur_direction = flip_bit(cur_direction)
                 else:
                     traffic_lights_time[junction] -= 1
             step += 1
