@@ -12,5 +12,20 @@ TLS utilizes the data from the camera(s) to performs 2 steps:
 2. From the traffic flow, calculate the optimal green-light time for one of the two sides of the crossroad.
 
 The first step is performed with a deep neural network model for object detection and tracking. The second step is performed with a deep reinforcement learning model to calculate the green-light time.
-* Devpost submission: 
+
+## Training
+For step 1, we refered to this paper "Zero-VIRUS: Zero-shot VehIcle Route Understanding System for Intelligent Transportation"<sup>[1]</sup>, and used transfer learning to re-trained the model with our custom dataset.
+
+For step 2, we first created SUMO simulation based on real-life traffic data. For the model, we built a Deep Q-Network. We then train the model in that simulated environment. The model was trained in 10 epochs with 200 steps.
+
+## Result
+Lost function of the controlling model (total waiting time at crossroad):
+<p align="center"> <img src="controlling/graph_controllingRLLostFunc.png"/> </p>
+
+## Demo
 * Video:
+
+* Devpost submission: 
+
+## References
+[1] L. Yu, Q. Feng, Y. Qian, W. Liu and A. G. Hauptmann, "Zero-VIRUS: Zero-shot Vehicle Route Understanding System for Intelligent Transportation," <i>2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)</i>, 2020, pp. 2534-2543, doi: 10.1109/CVPRW50498.2020.00305.
