@@ -91,12 +91,7 @@ def run_process(args):
 		Q_eval = Model(0.1, 12, 256, 256, 10)
   )
 	if args.ard:
-		com_ports = list(ports.comports())
-		if len(com_ports) != 0:
-			print(com_ports[0])
-			arduino = serial.Serial(port=com_ports[0], baudrate=9600, timeout=.1)
-		else:
-			print("There is no port openning")
+		arduino = serial.Serial(port='COM4', baudrate=9600, timeout=.1)
 
 	brain.Q_eval.load_state_dict(torch.load(args.model_path, map_location=brain.Q_eval.device))
 
