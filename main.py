@@ -9,6 +9,7 @@ import sys
 import time
 import math
 import optparse
+from collections import defaultdict
 import torch
 import pandas as pd
 import torch.optim as optim
@@ -35,20 +36,20 @@ def flip_bit(a):
 	else:
 		return 0
 
-def countCarState(fn, max_frame):
+def countCarState(fn, max_frame, state_dict):
 	state = pd.read_csv(fn, header = None, sep = ' ')
 	dict_input = {}
 	for row in range(state.shape[0]):
 		dict_input[state.iloc[row, 1]] = [state.iloc[row, 2] - 1, state.iloc[row, 3]]
-
-	dict_state = {}
-	dict_state[0] = [0] * 12
-	for it in range(1, max_frame):
-		row = dict_input.get(it, [0, 0])
-		dict_state[it] = dict_state[it-1] 
+	lst = [0] * 12
+	state_dict.append(lst)
+	for it in range(max_frame):
+		row = dict_input.get(it, [0, 0]) 
+		element = [i for i in lst]
 		if row != [0, 0]:
-			dict_state[it][row[0]] += row[1]
-	return dict_state
+			element[row[0]] += row[1]
+		lst = [i for i in element]
+		state_dict.append(element)
 
 class Model(nn.Module):
     def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
@@ -100,21 +101,23 @@ def run_process(args):
 	brain.Q_eval.load_state_dict(torch.load(args.model_path, map_location=brain.Q_eval.device))
 
 	step = 1
-	min_duration = 5
+	min_duration = 2
 	cur_direction = 0
 	traffic_lights_time = dict()
-	state_dict = countCarState(args.state_path, args.n_steps)
-	
+	state_dict = list()
+	countCarState(args.state_path, args.n_steps, state_dict)
+
 	for junction in all_junctions:
 		traffic_lights_time[junction] = 0
-
+	lastStep = 0
 	while step <= min(args.n_steps, len(state_dict)):
+		# print(state_dict[step])
 		for junction in all_junctions:
 			# lane ID
 			controlled_lanes = [0, 1, 2, 3]
 			if abs(traffic_lights_time[junction]) < 0.0001:
 				# Get the state at current frame
-				vehicles_per_lane = state_dict[step] 
+				vehicles_per_lane = [a_i-b_i for a_i, b_i in zip(state_dict[step], state_dict[lastStep])]
 				state = vehicles_per_lane
 				phase_time = brain.choose_action(state)
 				traffic_lights_time[junction] = min_duration + phase_time
@@ -123,11 +126,11 @@ def run_process(args):
 					value = write_read(arduino, ph)
 				cur_direction = flip_bit(cur_direction)
 				print(cur_direction, " ", traffic_lights_time[junction])
+				lastStep = step
 			else:
 				traffic_lights_time[junction] -= 1/15
 		step += 1
 		time.sleep(1/15)
-	# print(traffic_lights_time[0])
 
 
 def get_options():
@@ -135,7 +138,7 @@ def get_options():
 	optParser.add_option(
 		'--model_path',
 		type='string',
-		default='/Users/johntoro/Documents/Projects/TrafficLight/TrafficLightSystemRL-DLW2022-VAlly/controlling/models/1st_test.bin',
+		default='./controlling/models/1st_test.bin',
 		help='load model path'
 	)
 	optParser.add_option(
