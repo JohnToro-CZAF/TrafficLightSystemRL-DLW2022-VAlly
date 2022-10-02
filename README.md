@@ -7,6 +7,8 @@ Consider the problem: we have a busy crossroad with 4 traffic light clusters. We
 
 ## Approach
 The application performs 2 steps:
+<p>
 1. Using the camera data, infer the traffic flow for each of the 12 possible travelling directions at the crossroad.
 2. From the traffic flow, calculate the optimal green-light time for each side of the crossroad.
+</p>
 The first step requires a deep neural network model for object detection and tracking. The second step requires a deep reinforcement learning model to calculate the green-light time.
