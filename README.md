@@ -13,8 +13,30 @@ TLS utilizes the data from the camera(s) to perform 2 steps:
 
 The first step is performed with a deep neural network model for object detection and tracking. The second step is performed with a deep reinforcement learning model to calculate the green-light time.
 
-## Set-up
-
+## Set up
+### Set up repo
+```
+git clone https://github.com/JohnToro-CZAF/TrafficLightSystemRL-DLW2022-VAlly.git
+```
+Navigate to controlling for the deep reinforcement learning model.
+### Dependencies
+```
+torch
+numpy
+matplotlib
+sumo # sumo has some issue with MacOS laptop that may need further configuration
+```
+For quick installation, run
+```
+pip install -r requirements.txt
+```
+For visualization, you need to download SUMO GUI, which could be found [here](https://www.eclipse.org/sumo/). It is optional, as SUMO is used as a training environment only.
+### Network and route file
+The network file and route file for training data can be found in `controlling/maps/` folder. For training, we need to add them into the `configuration.sumocfg` file.
+`<input>`        
+  `<net-file value='maps/city1.net.xml'/>`
+  `<route-files value='maps/city1.rou.xml'/>`
+`</input>`
 
 ## Training
 For step 1, we refered to this paper "Zero-VIRUS: Zero-shot VehIcle Route Understanding System for Intelligent Transportation"<sup>[1]</sup>, and used transfer learning to re-trained the model with our custom dataset.
