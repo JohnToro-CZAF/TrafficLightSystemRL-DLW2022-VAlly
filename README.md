@@ -6,7 +6,7 @@ This repository contains codes for AATLaS, the Auto-Adaptive Traffic Light Syste
 Consider the problem: we have a busy crossroad with 4 traffic light clusters. We have traffic camera(s) that can give us information about the direction each car is travelling. What is the optimal green-light time for each travelling direction at the crossroad?
 
 ## Approach
-TLS utilizes the data from the camera(s) to perform 2 steps:
+AATLaS utilizes the data from the camera(s) to perform 2 steps:
 
 1. Using the camera data, infer the traffic flow for each of the 12 possible travelling directions at the crossroad.
 2. From the traffic flow, calculate the optimal green-light time for one of the two sides of the crossroad.
@@ -33,12 +33,12 @@ pip install -r requirements.txt
 For visualization, you need to download SUMO GUI, which could be found [here](https://www.eclipse.org/sumo/). It is optional, as SUMO is used as a training environment only.
 ### Network and route file
 The network file and route file for training data can be found in `controlling/maps/` folder. For training, we need to add them into the `configuration.sumocfg` file.
-
-`<input>`        
-  `<net-file value='maps/city1.net.xml'/>`
-  `<route-files value='maps/city1.rou.xml'/>`
-`</input>`
-
+```
+<input>
+  <net-file value='maps/city0.net.xml'/>
+  <route-files value='maps/city0.rou.xml'/>
+</input>
+```
 ## Training
 For step 1, we refered to this paper "Zero-VIRUS: Zero-shot VehIcle Route Understanding System for Intelligent Transportation"<sup>[1]</sup>, and used transfer learning to re-trained the model with our custom dataset.
 
