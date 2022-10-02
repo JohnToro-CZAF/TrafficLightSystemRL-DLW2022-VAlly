@@ -28,20 +28,23 @@ class CountsPerSec:
 
 def noThreading(source=0):
     """Grab and show video frames without multithreading."""
-    fps = 15
+    fps = 20
     prev = 0
     cap = cv2.VideoCapture(source)
     cps = CountsPerSec().start()
-    
+    winname = 'Vid 1'
+    cv2.namedWindow(winname, cv2.WINDOW_NORMAL)        # Create a named window
+    cv2.moveWindow(winname, 0, 0)  # Move it to (40,30)
     while True:
-        (grabbed, frame) = cap.read()
-        if not grabbed or cv2.waitKey(1) == ord("q"):
-            break
         while((time.time() - prev) < 1./fps):
           pass
-        prev = time.time()
-        cv2.imshow("Video", frame)
+        (grabbed, frame) = cap.read()
+        if not grabbed or cv2.waitKey(1) == ord("q"):
+          break
+        frame = cv2.resize(frame, (800, 480))
+        cv2.imshow(winname, frame)
         cps.increment()
+        prev = time.time()
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

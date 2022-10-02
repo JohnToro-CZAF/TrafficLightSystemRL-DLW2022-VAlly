@@ -96,7 +96,7 @@ def run_process(args):
 	brain.Q_eval.load_state_dict(torch.load(args.model_path, map_location=brain.Q_eval.device))
 
 	step = 1
-	min_duration = 2
+	min_duration = 3
 	cur_direction = 0
 	traffic_lights_time = dict()
 	state_dict = list()
@@ -110,20 +110,21 @@ def run_process(args):
 		for junction in all_junctions:
 			# lane ID
 			controlled_lanes = [0, 1, 2, 3]
-			if abs(traffic_lights_time[junction]) < 0.0001:
-				# Get the state at current frame
-				vehicles_per_lane = [a_i-b_i for a_i, b_i in zip(state_dict[step], state_dict[lastStep])]
-				state = vehicles_per_lane
-				phase_time = brain.choose_action(state)
-				traffic_lights_time[junction] = min_duration + phase_time
-				if args.ard:
-					ph = str('%d%d' % (cur_direction, traffic_lights_time[junction]))
-					value = write_read(arduino, ph)
-				cur_direction = flip_bit(cur_direction)
-				print(cur_direction, " ", traffic_lights_time[junction])
-				lastStep = step
-			else:
-				traffic_lights_time[junction] -= 1/15
+			if step > 150:
+				if abs(traffic_lights_time[junction]) < 0.0001:
+					# Get the state at current frame
+					vehicles_per_lane = [a_i-b_i for a_i, b_i in zip(state_dict[step], state_dict[lastStep])]
+					state = vehicles_per_lane
+					phase_time = brain.choose_action(state)
+					traffic_lights_time[junction] = min_duration + phase_time
+					if args.ard:
+						ph = str('%d%d' % (cur_direction, traffic_lights_time[junction]))
+						value = write_read(arduino, ph)
+					cur_direction = flip_bit(cur_direction)
+					print(cur_direction, " ", traffic_lights_time[junction])
+					lastStep = step
+				else:
+					traffic_lights_time[junction] -= 1/15
 		step += 1
 		time.sleep(1/15)
 
@@ -139,7 +140,7 @@ def get_options():
 	optParser.add_option(
 		'--n_steps',
 		type='int',
-		default=500,
+		default=300,
 		help='time for rendering'
 	)
 	optParser.add_option(
