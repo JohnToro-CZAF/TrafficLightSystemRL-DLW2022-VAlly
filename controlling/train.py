@@ -6,7 +6,7 @@ import sys
 import time
 import optparse
 import random
-import serial
+# import serial
 import numpy as np
 import torch
 import torch.optim as optim
