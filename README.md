@@ -13,6 +13,9 @@ TLS utilizes the data from the camera(s) to perform 2 steps:
 
 The first step is performed with a deep neural network model for object detection and tracking. The second step is performed with a deep reinforcement learning model to calculate the green-light time.
 
+## Set-up
+
+
 ## Training
 For step 1, we refered to this paper "Zero-VIRUS: Zero-shot VehIcle Route Understanding System for Intelligent Transportation"<sup>[1]</sup>, and used transfer learning to re-trained the model with our custom dataset.
 
