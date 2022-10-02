@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 import subprocess
-import pd
+#import pd
 import os
 import sys
 import time
@@ -90,8 +90,7 @@ def run_process(args):
 		junctions=all_junctions,
 		Q_eval = Model(0.1, 12, 256, 256, 10)
   )
-	if args.ard:
-		arduino = serial.Serial(port='COM4', baudrate=9600, timeout=.1)
+	ser = serial.Serial(port='/dev/tty.usbserial-110', baudrate=9600, timeout=.1)
 
 	brain.Q_eval.load_state_dict(torch.load(args.model_path, map_location=brain.Q_eval.device))
 
@@ -117,9 +116,8 @@ def run_process(args):
 					state = vehicles_per_lane
 					phase_time = brain.choose_action(state)
 					traffic_lights_time[junction] = min_duration + phase_time
-					if args.ard:
-						ph = str('%d%d' % (cur_direction, traffic_lights_time[junction]))
-						value = write_read(arduino, ph)
+					ph = str('%d %d\n' % (cur_direction, traffic_lights_time[junction]))
+					ser.write(bytes(ph, 'utf-8'))
 					cur_direction = flip_bit(cur_direction)
 					print(cur_direction, " ", traffic_lights_time[junction])
 					lastStep = step

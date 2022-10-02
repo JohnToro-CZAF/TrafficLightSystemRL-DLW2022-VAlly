@@ -58,4 +58,4 @@ if __name__ == "__main__":
             + " none (default--no multithreading)")
     args = vars(ap.parse_args())
     # noThreading(args["source"])
-    noThreading("/Users/johntoro/Documents/Projects/TrafficLight/video/source.mp4")
+    noThreading("/Users/MinhNghia/Downloads/source.mp4")
