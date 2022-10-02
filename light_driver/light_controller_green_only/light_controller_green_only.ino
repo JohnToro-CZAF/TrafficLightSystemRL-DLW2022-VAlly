@@ -53,7 +53,7 @@ void loop()
     int received_delay_green = 0;    // green light delay received from serial
     static int whichGreen = 0;       // which green light is on, 0 = [0, 2], 1 = [1, 3]
 
-    // REVEIVE DATA
+    // RECEIVE DATA
 
     // wait for data
     while (Serial.available()==0){}
@@ -63,15 +63,7 @@ void loop()
 
     while (Serial.available()==0){}
     received_delay_green = Serial.parseInt();
-/*
-    // check if data is valid
-    while (received_delay_green <= 0) {
-        while (Serial.available()==0){}
-        whichGreen = Serial.parseInt();
-        while (Serial.available()==0){}
-        received_delay_green = (int) Serial.parseInt();
-    }
-*/
+
     // execute green light command
     loop_interval(received_delay_green, whichGreen);
 
