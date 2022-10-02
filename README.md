@@ -6,7 +6,7 @@ This repository contains codes for AATLaS, the Auto-Adaptive Traffic Light Syste
 Consider the problem: we have a busy crossroad with 4 traffic light clusters. We have traffic camera(s) that can give us information about the direction each car is travelling. What is the optimal green-light time for each travelling direction at the crossroad?
 
 ## Approach
-TLS utilizes the data from the camera(s) to performs 2 steps:
+TLS utilizes the data from the camera(s) to perform 2 steps:
 
 1. Using the camera data, infer the traffic flow for each of the 12 possible travelling directions at the crossroad.
 2. From the traffic flow, calculate the optimal green-light time for one of the two sides of the crossroad.
