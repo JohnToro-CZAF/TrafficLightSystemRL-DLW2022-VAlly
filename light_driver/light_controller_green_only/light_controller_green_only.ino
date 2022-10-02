@@ -59,11 +59,13 @@ void loop()
     while (Serial.available()==0){}
 
     // read data
-    received_delay_green = (int) Serial.parseInt();
+    whichGreen = Serial.parseInt();
+    received_delay_green = Serial.parseInt();
 
     // check if data is valid
     while (received_delay_green <= 0) {
         while (Serial.available()==0){}
+        whichGreen = Serial.parseInt();
         received_delay_green = (int) Serial.parseInt();
     }
 
@@ -71,7 +73,7 @@ void loop()
     loop_interval(received_delay_green, whichGreen);
 
     // Preparing for next loop
-    whichGreen = (whichGreen + 1) % 2;
+    //whichGreen = (whichGreen + 1) % 2;
     for (int i = 0; i < NLIGHT; i++)
     {
         digitalWrite(LIGHT[i], LOW);
@@ -107,7 +109,7 @@ void initialize_interval(int whichGreen) {
 }
 
 void loop_interval(int duration, int whichGreen) {
-    // Set corresponding lights to green for (<duration> - <DELAY_YELLOW>) seconds, 
+    // Set corresponding lights to green for <duration> seconds, 
     // then set green lights to yellow for <DELAY_YELLOW> seconds,
     // All other lights are red.
     //
@@ -117,11 +119,11 @@ void loop_interval(int duration, int whichGreen) {
     // (Refer to the diagram above)
     // <duration> is the duration of the interval in seconds
 
-    if (duration < DELAY_YELLOW) {
+    if (duration <= 0) {
         return;
     }
     initialize_interval(whichGreen);
-    delay((duration - DELAY_YELLOW) * 1000);
+    delay(duration * 1000);
     for (int lane = 0; lane < 4; lane++) {
         if (lane % 2 == whichGreen) {
             set_light(lane, 1);
