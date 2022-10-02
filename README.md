@@ -23,9 +23,11 @@ Lost function of the controlling model (total waiting time at crossroad):
 <p align="center"> <img src="controlling/graph_controllingRLLostFunc.png"/> </p>
 
 ## Demo
-* Video:
+* [Video](youtube.com)
 
-* Devpost submission: 
+* [Devpost submission](https://devpost.com/software/tls)
 
 ## References
 [1] L. Yu, Q. Feng, Y. Qian, W. Liu and A. G. Hauptmann, "Zero-VIRUS: Zero-shot Vehicle Route Understanding System for Intelligent Transportation," <i>2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)</i>, 2020, pp. 2534-2543, doi: 10.1109/CVPRW50498.2020.00305.
+
+To find out more about deep reinforcement learning, refer to V. Mnih et al., "Playing Atari with Deep Reinforcement Learning," 12/19 2013
