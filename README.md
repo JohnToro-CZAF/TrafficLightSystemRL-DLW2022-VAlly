@@ -33,6 +33,7 @@ pip install -r requirements.txt
 For visualization, you need to download SUMO GUI, which could be found [here](https://www.eclipse.org/sumo/). It is optional, as SUMO is used as a training environment only.
 ### Network and route file
 The network file and route file for training data can be found in `controlling/maps/` folder. For training, we need to add them into the `configuration.sumocfg` file.
+
 `<input>`        
   `<net-file value='maps/city1.net.xml'/>`
   `<route-files value='maps/city1.rou.xml'/>`
